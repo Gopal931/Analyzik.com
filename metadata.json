@@ -1,0 +1,8 @@
+
+{
+  "name": "ANALYZIK - AI Business Solutions",
+  "description": "A premium, modern AI solutions landing page for businesses, featuring bold typography and minimal aesthetic.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
