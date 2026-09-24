@@ -118,7 +118,7 @@ const App: React.FC = () => {
         </section>
 
         <section id="ai-ads" className="relative z-10 min-h-screen flex items-start">
-          <AIAdsSection onBookClick={() => setIsBookingOpen(true)} />
+          <AIAdsSection />
         </section>
 
         <section id="web-design" className="relative z-10 min-h-screen flex items-start border-t border-white/5">
