@@ -33,6 +33,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
   ]);
 
   const chatFeedRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Load custom API key from localStorage if saved
@@ -155,7 +156,8 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
   ];
 
   // Helper to parse simple markdown (bold, links, bullet points)
-  const renderFormattedText = (text: string) => {
+  const renderFormattedText = (text?: string) => {
+    if (!text) return null;
     const lines = text.split('\n');
     return lines.map((line, i) => {
       // Bold rendering
@@ -372,7 +374,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
                 )}
 
                 <span className="text-[7.5px] font-mono text-white/25 mt-1 px-1.5">
-                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             ))}
