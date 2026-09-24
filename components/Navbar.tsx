@@ -116,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
             ? 'bg-black py-4 border-b border-white/10' 
             : scrolled 
               ? 'bg-black/95 backdrop-blur-2xl py-4 border-b border-white/5 shadow-2xl' 
-              : 'bg-transparent py-6 md:py-8'
+              : 'bg-transparent py-4 md:py-8'
         }`}
       >
         {/* Laser Scroll Progress Bar */}

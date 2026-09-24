@@ -55,6 +55,17 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
     }
   }, [isOpen]);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   const handleSend = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
     if (!query || isLoading) return;
@@ -181,9 +192,9 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
         )}
       </div>
 
-      {/* Luxury Compact Chat Window - Fullscreen on Mobile, Floating Drawer on Desktop */}
+      {/* Luxury Compact Chat Window - Fullscreen Below Navbar on Mobile, Floating Drawer on Desktop */}
       {isOpen && (
-        <div className="fixed inset-0 sm:inset-auto sm:bottom-8 sm:right-8 z-[110] w-full sm:w-[350px] md:w-[360px] h-full sm:h-[480px] sm:max-h-[78vh] bg-[#000000] border-0 sm:border sm:border-white/20 rounded-none sm:rounded-[1.75rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl">
+        <div className="fixed top-16 inset-x-0 bottom-0 sm:top-auto sm:inset-auto sm:bottom-8 sm:right-8 z-[150] w-full sm:w-[350px] md:w-[360px] h-[calc(100dvh-4rem)] sm:h-[480px] sm:max-h-[78vh] bg-[#000000] border-t sm:border border-white/15 sm:border-white/20 rounded-none sm:rounded-[1.75rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl">
           {/* Header Bar */}
           <div className="px-4 py-3 sm:py-3 border-b border-white/10 bg-white/[0.03] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
@@ -203,7 +214,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {/* Settings / API Key */}
               <button
                 type="button"
@@ -218,15 +229,15 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
                 </svg>
               </button>
 
-              {/* Close Button */}
+              {/* Close ("Cut") Button - Highly Visible and Accessible */}
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 text-white/40 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+                className="p-2 text-white/80 hover:text-white rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all border border-white/20"
                 aria-label="Close Chat"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
