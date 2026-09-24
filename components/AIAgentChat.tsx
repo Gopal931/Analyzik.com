@@ -59,12 +59,38 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
+        handleClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
+
+  // Handle mobile hardware/gesture Back button & remove focus
+  useEffect(() => {
+    if (isOpen) {
+      window.history.pushState({ analyzikChatOpen: true }, '');
+
+      const handlePopState = () => {
+        // When user presses mobile back button, remove focus and close chat
+        inputRef.current?.blur();
+        setIsOpen(false);
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    inputRef.current?.blur();
+    setIsOpen(false);
+    if (window.history.state?.analyzikChatOpen) {
+      window.history.back();
+    }
+  };
 
   const handleSend = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
@@ -80,6 +106,11 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+
+    // Keep pointer focus active so mobile keyboard does not dismiss after sending
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 15);
 
     try {
       const response = await askGeminiAgent(query, messages, customApiKey);
@@ -104,6 +135,10 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
       ]);
     } finally {
       setIsLoading(false);
+      // Re-affirm focus after response arrives
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
     }
   };
 
@@ -194,33 +229,44 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
 
       {/* Luxury Compact Chat Window - Fullscreen Below Navbar on Mobile, Floating Drawer on Desktop */}
       {isOpen && (
-        <div className="fixed top-16 inset-x-0 bottom-0 sm:top-auto sm:inset-auto sm:bottom-8 sm:right-8 z-[150] w-full sm:w-[350px] md:w-[360px] h-[calc(100dvh-4rem)] sm:h-[480px] sm:max-h-[78vh] bg-[#000000] border-t sm:border border-white/15 sm:border-white/20 rounded-none sm:rounded-[1.75rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl">
+        <div className="fixed top-16 inset-x-0 bottom-0 sm:top-auto sm:inset-auto sm:bottom-8 sm:right-8 z-[150] w-full sm:w-[360px] md:w-[380px] h-[calc(100dvh-4rem)] sm:h-[500px] sm:max-h-[82vh] bg-[#070707] border-t sm:border border-white/15 sm:border-white/20 rounded-none sm:rounded-[2rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl relative">
+          
+          {/* Subtle Ambient Decorative Lighting */}
+          <div className="absolute top-0 right-0 w-56 h-56 bg-emerald-500/[0.07] rounded-full blur-3xl pointer-events-none -z-0" />
+          <div className="absolute bottom-16 left-0 w-48 h-48 bg-white/[0.02] rounded-full blur-2xl pointer-events-none -z-0" />
+
           {/* Header Bar */}
-          <div className="px-4 py-3 sm:py-3 border-b border-white/10 bg-white/[0.03] flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center p-1">
-                <LogoIcon size={18} className="text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]" />
+          <div className="px-4 py-3 sm:py-3.5 border-b border-white/10 bg-white/[0.02] backdrop-blur-md flex items-center justify-between shrink-0 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="relative w-8 h-8 rounded-full bg-white/[0.08] border border-white/20 flex items-center justify-center p-1 shadow-inner">
+                <LogoIcon size={18} className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
               </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="text-[11px] font-black uppercase tracking-wider font-elegant text-white">
-                    ANALYZIK AI Agent
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] font-elegant text-white">
+                    ANALYZIK AI
                   </h3>
+                  <span className="text-[7.5px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    LIVE
+                  </span>
                 </div>
-                <div className="flex items-center gap-1 text-[8px] text-white/40">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span>Online • Grounded Assistant</span>
+                <div className="flex items-center gap-1.5 text-[8.5px] font-mono text-white/50">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Enterprise Intelligence</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               {/* Settings / API Key */}
               <button
                 type="button"
                 onClick={() => setShowSettings(!showSettings)}
-                className={`p-1.5 rounded-full border transition-all ${showSettings ? 'bg-white text-black border-white' : 'text-white/40 hover:text-white border-white/10 hover:bg-white/10'
-                  }`}
+                className={`p-2 rounded-full border transition-all ${
+                  showSettings 
+                    ? 'bg-white text-black border-white' 
+                    : 'text-white/50 hover:text-white border-white/10 bg-white/5 hover:bg-white/10'
+                }`}
                 title="Gemini API Key Settings"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,11 +275,11 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
                 </svg>
               </button>
 
-              {/* Close ("Cut") Button - Highly Visible and Accessible */}
+              {/* Close ("Cut") Button */}
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
-                className="p-2 text-white/80 hover:text-white rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all border border-white/20"
+                onClick={handleClose}
+                className="p-2 text-white/80 hover:text-white rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all border border-white/20 shadow-sm"
                 aria-label="Close Chat"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +291,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
 
           {/* Settings Drawer (Gemini Key Config) */}
           {showSettings && (
-            <div className="p-3 bg-white/[0.04] border-b border-white/10 animate-fadeIn text-xs">
+            <div className="p-3.5 bg-white/[0.04] border-b border-white/10 animate-fadeIn text-xs relative z-10">
               <label className="block text-[9px] font-mono uppercase tracking-widest text-white/60 mb-1.5">
                 Gemini API Key (Optional)
               </label>
@@ -260,7 +306,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveApiKey}
-                  className="px-3 py-1.5 bg-white text-black font-bold uppercase tracking-wider text-[8px] rounded-xl hover:scale-105 active:scale-95 transition-all"
+                  className="px-3.5 py-1.5 bg-white text-black font-bold uppercase tracking-wider text-[8px] rounded-xl hover:scale-105 active:scale-95 transition-all shadow-sm"
                 >
                   Save
                 </button>
@@ -269,17 +315,18 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
           )}
 
           {/* Messages Feed Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 text-[11px] leading-relaxed custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs leading-relaxed custom-scrollbar relative z-10">
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+                className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} animate-fadeIn`}
               >
                 <div
-                  className={`max-w-[88%] p-3 sm:p-3.5 rounded-2xl ${msg.sender === 'user'
-                    ? 'bg-white text-black font-medium rounded-br-sm'
-                    : 'bg-white/[0.06] border border-white/10 text-white/85 rounded-bl-sm shadow-md'
-                    }`}
+                  className={`max-w-[88%] p-3.5 sm:p-4 rounded-2xl ${
+                    msg.sender === 'user'
+                      ? 'bg-white text-black font-semibold rounded-tr-sm shadow-[0_4px_15px_rgba(255,255,255,0.15)]'
+                      : 'bg-white/[0.05] border border-white/10 text-white/90 rounded-tl-sm shadow-[0_8px_24px_rgba(0,0,0,0.5)] backdrop-blur-md'
+                  }`}
                 >
                   {renderFormattedText(msg.text)}
                 </div>
@@ -291,21 +338,21 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
                       href="https://wa.me/9779766116618"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-2.5 py-1 bg-[#25D366]/20 border border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366] hover:text-white rounded-full text-[8px] font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                      className="px-3 py-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/35 text-[#25D366] rounded-full text-[8.5px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 active:scale-95"
                     >
                       <span>WhatsApp Support</span>
                     </a>
                     <a
                       href="mailto:teamanalyzik@gmail.com"
-                      className="px-2.5 py-1 bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black rounded-full text-[8px] font-black uppercase tracking-wider transition-all flex items-center gap-1"
+                      className="px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full text-[8.5px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 active:scale-95"
                     >
                       <span>Email Us</span>
                     </a>
                     {onBookClick && (
                       <button
                         type="button"
-                        onClick={() => { setIsOpen(false); onBookClick(); }}
-                        className="px-2.5 py-1 bg-white text-black rounded-full text-[8px] font-black uppercase tracking-wider hover:scale-105 transition-all"
+                        onClick={() => { handleClose(); onBookClick(); }}
+                        className="px-3 py-1.5 bg-white text-black rounded-full text-[8.5px] font-black uppercase tracking-wider hover:scale-105 active:scale-95 transition-all shadow-md"
                       >
                         <span>Book Audit</span>
                       </button>
@@ -313,7 +360,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
                   </div>
                 )}
 
-                <span className="text-[7px] font-mono text-white/20 mt-1 px-1">
+                <span className="text-[7.5px] font-mono text-white/25 mt-1 px-1.5">
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -321,7 +368,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
 
             {/* Typing Indicator */}
             {isLoading && (
-              <div className="flex items-center gap-1.5 p-3 bg-white/[0.04] border border-white/10 rounded-2xl w-20">
+              <div className="flex items-center gap-2 p-3 bg-white/[0.05] border border-white/10 rounded-2xl w-20 shadow-md">
                 <div className="w-1.5 h-1.5 rounded-full bg-white animate-bounce" />
                 <div className="w-1.5 h-1.5 rounded-full bg-white animate-bounce [animation-delay:0.2s]" />
                 <div className="w-1.5 h-1.5 rounded-full bg-white animate-bounce [animation-delay:0.4s]" />
@@ -333,17 +380,17 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
 
           {/* Starter Suggestions */}
           {messages.length === 1 && (
-            <div className="px-4 pb-2">
-              <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest block mb-1.5">
-                Suggested:
+            <div className="px-4 pb-2.5 pt-1 relative z-10">
+              <span className="text-[8px] font-mono text-white/40 uppercase tracking-widest block mb-1.5">
+                Suggested Prompts:
               </span>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1.5">
                 {starterPrompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => handleSend(prompt)}
-                    className="text-[8px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-all text-left"
+                    className="text-[8.5px] px-3 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 hover:border-white/30 text-white/75 hover:text-white transition-all text-left active:scale-95"
                   >
                     {prompt}
                   </button>
@@ -358,7 +405,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
               e.preventDefault();
               handleSend();
             }}
-            className="p-3 border-t border-white/10 bg-white/[0.02] flex items-center gap-2"
+            className="p-3 sm:p-3.5 border-t border-white/10 bg-[#080808]/95 backdrop-blur-2xl flex items-center gap-2.5 shrink-0 relative z-10"
           >
             <input
               ref={inputRef}
@@ -366,15 +413,19 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about AI solutions, ads, or web design..."
-              className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2 text-[11px] text-white placeholder-white/30 focus:border-white/40 focus:bg-white/[0.08] outline-none transition-all"
+              className="flex-1 bg-white/[0.06] hover:bg-white/[0.08] focus:bg-white/[0.1] border border-white/15 focus:border-emerald-400/50 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/35 outline-none transition-all shadow-inner"
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="p-2.5 bg-white text-black rounded-xl hover:scale-105 active:scale-95 disabled:opacity-30 disabled:scale-100 transition-all shrink-0 shadow-md"
+              onMouseDown={(e) => e.preventDefault()}
+              onTouchEnd={() => {
+                setTimeout(() => inputRef.current?.focus(), 20);
+              }}
+              className="p-2.5 bg-white text-black rounded-xl hover:scale-105 active:scale-95 disabled:opacity-25 disabled:scale-100 transition-all shrink-0 shadow-md flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
               aria-label="Send Message"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </button>
