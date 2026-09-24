@@ -227,9 +227,9 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
         )}
       </div>
 
-      {/* Luxury Compact Chat Window - Fullscreen Below Navbar on Mobile, Floating Drawer on Desktop */}
+      {/* Luxury Compact Chat Popup Window - Floating Popup Card on Both Mobile & Desktop */}
       {isOpen && (
-        <div className="fixed top-16 inset-x-0 bottom-0 sm:top-auto sm:inset-auto sm:bottom-8 sm:right-8 z-[150] w-full sm:w-[360px] md:w-[380px] h-[calc(100dvh-4rem)] sm:h-[500px] sm:max-h-[82vh] bg-[#070707] border-t sm:border border-white/15 sm:border-white/20 rounded-none sm:rounded-[2rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl relative">
+        <div className="fixed bottom-5 right-4 sm:bottom-8 sm:right-8 z-[150] w-[calc(100vw-2rem)] sm:w-[360px] md:w-[380px] h-[490px] max-h-[75vh] sm:max-h-[82vh] bg-[#070707] border border-white/15 sm:border-white/20 rounded-[1.75rem] sm:rounded-[2rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl relative">
           
           {/* Subtle Ambient Decorative Lighting */}
           <div className="absolute top-0 right-0 w-56 h-56 bg-emerald-500/[0.07] rounded-full blur-3xl pointer-events-none -z-0" />
