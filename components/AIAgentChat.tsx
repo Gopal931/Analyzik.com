@@ -227,9 +227,17 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
         )}
       </div>
 
-      {/* Luxury Compact Chat Popup Window - Floating Popup Card on Both Mobile & Desktop */}
+      {/* Mobile Backdrop (Click outside closes modal on mobile) */}
       {isOpen && (
-        <div className="fixed bottom-5 right-4 sm:bottom-8 sm:right-8 z-[150] w-[calc(100vw-2rem)] sm:w-[360px] md:w-[380px] h-[490px] max-h-[75vh] sm:max-h-[82vh] bg-[#070707] border border-white/15 sm:border-white/20 rounded-[1.75rem] sm:rounded-[2rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl relative">
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[190] sm:hidden transition-opacity duration-300 animate-fadeIn"
+          onClick={handleClose}
+        />
+      )}
+
+      {/* Luxury Compact Chat Popup Window - Floating Over Current Viewport on Both Mobile & Desktop */}
+      {isOpen && (
+        <div className="fixed bottom-5 right-4 sm:bottom-8 sm:right-8 z-[200] w-[calc(100vw-2rem)] sm:w-[380px] md:w-[400px] h-[520px] max-h-[85vh] sm:max-h-[82vh] bg-[#070707] border border-white/15 sm:border-white/20 rounded-[1.75rem] sm:rounded-[2rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl">
           
           {/* Subtle Ambient Decorative Lighting */}
           <div className="absolute top-0 right-0 w-56 h-56 bg-emerald-500/[0.07] rounded-full blur-3xl pointer-events-none -z-0" />
