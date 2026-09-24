@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Logo } from './Logo';
 
@@ -9,13 +8,40 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const currentScroll = window.scrollY;
+      setScrolled(currentScroll > 20);
+
+      // Calculate scroll progress percentage
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((currentScroll / totalHeight) * 100);
+      }
+
+      // ScrollSpy: identify active section
+      const sections = ['home', 'solutions', 'ai-ads', 'web-design', 'content-editing', 'about', 'faq', 'contact'];
+      for (const sectionId of sections) {
+        if (sectionId === 'home' && currentScroll < 300) {
+          setActiveSection('home');
+          break;
+        }
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 200 && rect.bottom >= 200) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -71,13 +97,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
   };
 
   const navItems = [
-    { label: 'Home', href: '#' },
-    { label: 'AI Solutions', href: '#solutions' },
-    { label: 'AI Ads', href: '#ai-ads' },
-    { label: 'Web Design', href: '#web-design' },
-    { label: 'Content Editing', href: '#content-editing' },
-    { label: 'About', href: '#about' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Home', href: '#', id: 'home' },
+    { label: 'AI Solutions', href: '#solutions', id: 'solutions' },
+    { label: 'AI Ads', href: '#ai-ads', id: 'ai-ads' },
+    { label: 'Web Design', href: '#web-design', id: 'web-design' },
+    { label: 'Content', href: '#content-editing', id: 'content-editing' },
+    { label: 'About', href: '#about', id: 'about' },
+    { label: 'FAQ', href: '#faq', id: 'faq' },
+    { label: 'Contact', href: '#contact', id: 'contact' },
   ];
 
   return (
@@ -92,6 +119,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
               : 'bg-transparent py-6 md:py-8'
         }`}
       >
+        {/* Laser Scroll Progress Bar */}
+        <div 
+          className="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-white via-white to-emerald-400 shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-150 ease-out z-20 pointer-events-none"
+          style={{ width: `${scrollProgress}%` }}
+        />
+
         <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between gap-6">
           {/* Brand / Logo */}
           <div 
@@ -108,19 +141,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
             <Logo size={32} />
           </div>
           
-          {/* Navigation Items (Desktop) */}
+          {/* Navigation Items (Desktop with ScrollSpy) */}
           <div className="hidden md:flex flex-1 justify-center items-center">
-            <div className="flex items-center gap-4 lg:gap-8">
-              {navItems.map((item) => (
-                <a 
-                  key={item.label} 
-                  href={item.href}
-                  onClick={(e) => scrollToSection(e, item.href)}
-                  className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all whitespace-nowrap py-2"
-                >
-                  {item.label}
-                </a>
-              ))}
+            <div className="flex items-center gap-2 lg:gap-5 bg-white/[0.02] border border-white/5 px-4 py-2 rounded-full backdrop-blur-md">
+              {navItems.map((item) => {
+                const isActive = activeSection === item.id;
+                return (
+                  <a 
+                    key={item.label} 
+                    href={item.href}
+                    onClick={(e) => scrollToSection(e, item.href)}
+                    className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap py-1.5 px-3 rounded-full ${
+                      isActive 
+                        ? 'bg-white text-black shadow-md' 
+                        : 'text-white/40 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
             </div>
           </div>
           
@@ -128,9 +168,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
           <div className="hidden md:flex flex-shrink-0">
             <button 
               onClick={onBookClick}
-              className="px-8 py-3.5 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 whitespace-nowrap"
+              className="px-7 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:scale-105 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] active:scale-95 whitespace-nowrap"
             >
-              Book Appointment
+              Book Audit
             </button>
           </div>
 
@@ -144,19 +184,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
               aria-controls="mobile-navigation"
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
-              {/* Top Bar */}
               <span 
                 className={`block w-5 h-0.5 bg-white rounded-full transition-transform duration-300 ease-in-out ${
                   mobileMenuOpen ? 'rotate-45 translate-y-2' : ''
                 }`} 
               />
-              {/* Middle Bar */}
               <span 
                 className={`block w-5 h-0.5 bg-white rounded-full transition-all duration-200 ease-in-out ${
                   mobileMenuOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
                 }`} 
               />
-              {/* Bottom Bar */}
               <span 
                 className={`block w-5 h-0.5 bg-white rounded-full transition-transform duration-300 ease-in-out ${
                   mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
@@ -167,7 +204,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
         </div>
       </header>
 
-      {/* Standard Full-Screen Mobile Drawer (Independent of Header backdrop-filter) */}
+      {/* Standard Full-Screen Mobile Drawer */}
       <div 
         id="mobile-navigation"
         style={{ backgroundColor: '#000000' }}
@@ -175,44 +212,43 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
           mobileMenuOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'
         }`}
       >
-        {/* Navigation Links Area */}
         <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full space-y-1 my-auto">
-          {navItems.map((item, idx) => (
-            <a 
-              key={item.label} 
-              href={item.href}
-              onClick={(e) => scrollToSection(e, item.href)}
-              className={`group flex items-center justify-between py-3.5 border-b border-white/5 transition-all duration-300 ${
-                mobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-              }`}
-              style={{ transitionDelay: `${mobileMenuOpen ? idx * 40 + 80 : 0}ms` }}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-mono text-white/30 tracking-widest">
-                  0{idx + 1}
-                </span>
-                <span className="text-xl font-bold uppercase tracking-widest text-white/70 group-hover:text-white group-hover:translate-x-1 transition-all font-elegant">
-                  {item.label}
-                </span>
-              </div>
-              <svg 
-                className="w-4 h-4 text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
+          {navItems.map((item, idx) => {
+            const isActive = activeSection === item.id;
+            return (
+              <a 
+                key={item.label} 
+                href={item.href}
+                onClick={(e) => scrollToSection(e, item.href)}
+                className={`group flex items-center justify-between py-3 border-b border-white/5 transition-all duration-300 ${
+                  mobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                }`}
+                style={{ transitionDelay: `${mobileMenuOpen ? idx * 30 + 60 : 0}ms` }}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
-          ))}
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-mono text-white/30 tracking-widest">
+                    0{idx + 1}
+                  </span>
+                  <span className={`text-lg sm:text-xl font-bold uppercase tracking-widest transition-all font-elegant ${
+                    isActive ? 'text-white translate-x-1 font-black' : 'text-white/60 group-hover:text-white'
+                  }`}>
+                    {item.label}
+                  </span>
+                </div>
+                {isActive && (
+                  <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_white]" />
+                )}
+              </a>
+            );
+          })}
         </div>
 
         {/* Action Button & Contact Footer inside Mobile Menu */}
         <div 
-          className={`max-w-md mx-auto w-full pt-6 space-y-6 transition-all duration-300 ${
+          className={`max-w-md mx-auto w-full pt-6 space-y-5 transition-all duration-300 ${
             mobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
           }`}
-          style={{ transitionDelay: `${mobileMenuOpen ? 380 : 0}ms` }}
+          style={{ transitionDelay: `${mobileMenuOpen ? 320 : 0}ms` }}
         >
           <button 
             onClick={() => { setMobileMenuOpen(false); onBookClick(); }}
@@ -224,18 +260,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onBookClick, onHomeClick }) => {
             </svg>
           </button>
 
-          {/* Quick Contact Links */}
           <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
-            <a 
-              href="mailto:teamanalyzik@gmail.com" 
-              className="hover:text-white transition-colors"
-            >
+            <a href="mailto:teamanalyzik@gmail.com" className="hover:text-white transition-colors">
               teamanalyzik@gmail.com
             </a>
-            <a 
-              href="tel:+919124843858" 
-              className="hover:text-white transition-colors font-semibold"
-            >
+            <a href="tel:+919124843858" className="hover:text-white transition-colors font-semibold">
               +91 91248 43858
             </a>
           </div>
