@@ -158,12 +158,12 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="group flex items-center gap-3 bg-[#0a0a0a]/90 hover:bg-[#121212] text-white p-3 sm:px-5 sm:py-3 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.8)] border border-white/15 hover:border-white/35 transition-all duration-300 hover:scale-[1.03] active:scale-95 backdrop-blur-2xl"
+            className="group flex items-center gap-3 bg-[#0a0a0a]/90 hover:bg-[#121212] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.8)] border border-white/15 hover:border-white/35 transition-all duration-300 hover:scale-[1.03] active:scale-95 backdrop-blur-2xl"
             aria-label="Open AI Assistant"
           >
             {/* Sparkle / Agent Icon */}
-            <div className="relative w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shrink-0">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="relative w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shrink-0">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
@@ -181,14 +181,14 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
         )}
       </div>
 
-      {/* Luxury Compact Chat Window */}
+      {/* Luxury Compact Chat Window - Fullscreen on Mobile, Floating Drawer on Desktop */}
       {isOpen && (
-        <div className="fixed bottom-5 right-4 sm:bottom-8 sm:right-8 z-[110] w-[calc(100vw-2rem)] sm:w-[350px] md:w-[360px] h-[480px] max-h-[78vh] bg-[#000000] border border-white/20 rounded-[1.75rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl">
+        <div className="fixed inset-0 sm:inset-auto sm:bottom-8 sm:right-8 z-[110] w-full sm:w-[350px] md:w-[360px] h-full sm:h-[480px] sm:max-h-[78vh] bg-[#000000] border-0 sm:border sm:border-white/20 rounded-none sm:rounded-[1.75rem] shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden animate-scaleIn backdrop-blur-3xl">
           {/* Header Bar */}
-          <div className="px-4 py-3 border-b border-white/10 bg-white/[0.03] flex items-center justify-between">
+          <div className="px-4 py-3 sm:py-3 border-b border-white/10 bg-white/[0.03] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center p-1">
-                <LogoIcon size={16} className="text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]" />
+              <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center p-1">
+                <LogoIcon size={18} className="text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.4)]" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
