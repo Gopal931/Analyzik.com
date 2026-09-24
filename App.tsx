@@ -14,9 +14,11 @@ import { WhatsAppButton } from './components/WhatsAppButton';
 import { BookingModal } from './components/BookingModal';
 import { AISolutionsDetail } from './components/AISolutionsDetail';
 import { LegalModal } from './components/LegalModal';
+import { AIAgentChat } from './components/AIAgentChat';
 
 const App: React.FC = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [view, setView] = useState<'home' | 'ai-detail'>('home');
   const [legalView, setLegalView] = useState<'privacy' | 'terms' | null>(null);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
@@ -77,6 +79,7 @@ const App: React.FC = () => {
         <AISolutionsDetail onBack={navigateToHome} onBookClick={() => setIsBookingOpen(true)} />
         <Footer onLegalClick={setLegalView} />
         <WhatsAppButton />
+        <AIAgentChat onBookClick={() => setIsBookingOpen(true)} />
         {isBookingOpen && <BookingModal onClose={() => setIsBookingOpen(false)} />}
         {legalView && <LegalModal type={legalView} onClose={() => setLegalView(null)} />}
       </div>
@@ -144,7 +147,12 @@ const App: React.FC = () => {
 
       <Footer onLegalClick={setLegalView} />
       
-      <WhatsAppButton />
+      <WhatsAppButton isChatOpen={isChatOpen} />
+      <AIAgentChat 
+        onBookClick={() => setIsBookingOpen(true)} 
+        isOpen={isChatOpen}
+        onToggleOpen={setIsChatOpen}
+      />
       
       {isBookingOpen && <BookingModal onClose={() => setIsBookingOpen(false)} />}
       {legalView && <LegalModal type={legalView} onClose={() => setLegalView(null)} />}
