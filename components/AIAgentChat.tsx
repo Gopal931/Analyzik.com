@@ -32,7 +32,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
     }
   ]);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatFeedRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Load custom API key from localStorage if saved
@@ -41,17 +41,17 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
     if (savedKey) setCustomApiKey(savedKey);
   }, []);
 
-  // Auto-scroll to bottom of chat
+  // Auto-scroll inside chat feed only (NEVER scroll the browser window/page)
   useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isOpen && chatFeedRef.current) {
+      chatFeedRef.current.scrollTop = chatFeedRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
 
-  // Focus input when opened
+  // Focus input when opened without scrolling the page
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 150);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 150);
     }
   }, [isOpen]);
 
@@ -107,9 +107,9 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
     setInput('');
     setIsLoading(true);
 
-    // Keep pointer focus active so mobile keyboard does not dismiss after sending
+    // Keep pointer focus active without scrolling outer page
     setTimeout(() => {
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     }, 15);
 
     try {
@@ -135,9 +135,9 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
       ]);
     } finally {
       setIsLoading(false);
-      // Re-affirm focus after response arrives
+      // Re-affirm focus after response arrives without scrolling page
       setTimeout(() => {
-        inputRef.current?.focus();
+        inputRef.current?.focus({ preventScroll: true });
       }, 50);
     }
   };
@@ -315,7 +315,10 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
           )}
 
           {/* Messages Feed Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs leading-relaxed custom-scrollbar relative z-10">
+          <div 
+            ref={chatFeedRef}
+            className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs leading-relaxed custom-scrollbar relative z-10"
+          >
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -420,7 +423,7 @@ export const AIAgentChat: React.FC<AIAgentChatProps> = ({
               disabled={!input.trim() || isLoading}
               onMouseDown={(e) => e.preventDefault()}
               onTouchEnd={() => {
-                setTimeout(() => inputRef.current?.focus(), 20);
+                setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 20);
               }}
               className="p-2.5 bg-white text-black rounded-xl hover:scale-105 active:scale-95 disabled:opacity-25 disabled:scale-100 transition-all shrink-0 shadow-md flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
               aria-label="Send Message"
